@@ -45,12 +45,12 @@ CINE records **CinemaDNG only** while the mod runs. Six modes, picked on the RES
 
 | Mode | 12bit | $\color{#a371f7}{\textsf{14bit}}$ | DC crop | Resolution | Ratio | Scaling | Max FPS | Crop vs full readout | Rolling shutter | Lossless compression (DATA-) at 23.976 | Uncompressed (DATA+) at 23.976 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| **UHD** | ✓ | $\color{#a371f7}{\checkmark\ \textsf{(DC only)}}$ | ✓ | 3840x2160 | 16:9 | ISP | 29.97, $\color{#a371f7}{\textsf{14bit 23.976}}$ | 1.0, DC 1.5 | 21.0 ms, DC 13.4 ms, $\color{#a371f7}{\textsf{DC 14bit 27.5 ms}}$ | 220 MB/s | 303 MB/s, $\color{#a371f7}{\textsf{14bit 353 MB/s}}$ |
+| **UHD** | ✓ | $\color{#a371f7}{\checkmark}$ $\color{#a371f7}{\textsf{(DC}}$ $\color{#a371f7}{\textsf{only)}}$ | ✓ | 3840x2160 | 16:9 | ISP | 29.97, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{23.976}}$ | 1.0, DC 1.5 | 21.0 ms, DC 13.4 ms, $\color{#a371f7}{\textsf{DC}}$ $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{27.5}}$ $\color{#a371f7}{\textsf{ms}}$ | 220 MB/s | 303 MB/s, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{353}}$ $\color{#a371f7}{\textsf{MB/s}}$ |
 | **XQ** | ✓ | | ✓ | 3840x2560 | 3:2 | ISP | 29.97 | 1.0, DC 1.5 | 24.8 ms, DC 15.9 ms | 274 MB/s | 358 MB/s |
 | **HQ** | ✓ | | ✓ | 3240x2160 | 3:2 | ISP | 29.97 | 1.0, DC 1.5 | 24.8 ms, DC 15.9 ms | 172 MB/s | 257 MB/s |
 | **MQ** | ✓ | | | 3000x2000 | 3:2 | 2x2 | 50 | 1.0 | 12.4 ms | 134 MB/s | 221 MB/s |
 | **LQ** | ✓ | | | 2000x1334 | 3:2 | 3x3 | 119.88 | 1.0 | 8.3 ms | 52 MB/s | 99 MB/s |
-| **S16** | ✓ | $\color{#a371f7}{\checkmark}$ | | 2160x1440 | 3:2 | Full readout | 29.97, $\color{#a371f7}{\textsf{14bit 23.976}}$ | 2.8 | 9.0 ms, $\color{#a371f7}{\textsf{14bit 18.3 ms}}$ | 61 MB/s | 115 MB/s, $\color{#a371f7}{\textsf{14bit 134 MB/s}}$ |
+| **S16** | ✓ | $\color{#a371f7}{\checkmark}$ | | 2160x1440 | 3:2 | Full readout | 29.97, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{23.976}}$ | 2.8 | 9.0 ms, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{18.3}}$ $\color{#a371f7}{\textsf{ms}}$ | 61 MB/s | 115 MB/s, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{134}}$ $\color{#a371f7}{\textsf{MB/s}}$ |
 
 Purple = 14-bit.
 
