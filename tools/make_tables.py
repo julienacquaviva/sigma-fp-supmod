@@ -30,13 +30,13 @@ def table(media, ratio):
 
 def all_tables():
     parts = []
-    for media, label in (('SSD', 'SSD (up to 370 MB/s)'), ('v90', 'v90 (up to 195 MB/s)'), ('v60', 'v60 (up to 125 MB/s)'), ('v30', 'v30 (up to 85 MB/s)')):
+    for media, label in (('SSD', 'FAST (SSD, up to 370 MB/s)'), ('v90', 'REGULAR (v90 card, up to 195 MB/s)'), ('v60', 'MEDIUM (v60 card, up to 125 MB/s)'), ('v30', 'SLOW (v30 card, up to 85 MB/s)')):
         body = '\n\n'.join('**%s**\n\n%s' % (r, table(media, r)) for r in ('3:2', '16:9', '2:1'))
         n = sum(len(c['states']) for r in D[media]['ratios'] for c in r['crops'])
         if media == 'SSD':
-            parts.append('### MEDIA = %s\n\n%s' % (label, body))
+            parts.append('### DATA = %s\n\n%s' % (label, body))
         else:
-            parts.append('<details>\n<summary><b>MEDIA = %s</b></summary>\n\n%s\n\n</details>' % (label, body))
+            parts.append('<details>\n<summary><b>DATA = %s</b></summary>\n\n%s\n\n</details>' % (label, body))
     return '\n\n'.join(parts)
 
 

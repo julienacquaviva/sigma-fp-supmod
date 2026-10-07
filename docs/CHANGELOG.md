@@ -2,7 +2,15 @@
 
 Public releases only. Build numbers in between were test builds on the author's card.
 
+## R168 (2026-10-08)
+
+- **Fixed: a bright line at 23.976 fps.** With a shutter faster than about 1/40, one row of every 23.976 frame was exposed for a whole frame instead of the shutter time and showed as a bright horizontal line on bright areas. The 23.976 and 59.94 timings now use the same frame layout as Sigma's own firmware. Frame rate and rolling shutter are unchanged. 24, 25, 29.97 and the other rates were not affected.
+- **MEDIA is now DATA.** The Quick Set tile shows the estimated data rate in the colour of the target, with FAST (SSD), REGULAR (v90), MEDIUM (v60) or SLOW (v30) underneath. Record Settings shows the same, for example `369MB/s (FAST)`. The Custom QS editor follows.
+
 ## R166 (2026-10-07)
+
+**Known fault, fixed in R168:** a bright line across the frame at 23.976 fps with shutters faster than about 1/40.
+
 
 A new way to choose what you record. The six named modes of R120 are replaced by four settings that work together.
 

@@ -26,6 +26,8 @@ jobs:
           sha256sum -c SHA256SUMS.txt
           zip -9 "$GITHUB_WORKSPACE/sigma-fp-supmod-$TAG.zip" FPOG.BIN AutoRun.txt BOOT.BIN SHA256SUMS.txt
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          NEWEST=$(ls "$GITHUB_WORKSPACE/release" | sort -V | tail -n 1)
+          if [ "$TAG" = "$NEWEST" ]; then echo "latest=true" >> "$GITHUB_OUTPUT"; else echo "latest=false" >> "$GITHUB_OUTPUT"; fi
           if [ -f NOTES.md ]; then cp NOTES.md "$GITHUB_WORKSPACE/notes.md"; else echo "Build $TAG. See the README." > "$GITHUB_WORKSPACE/notes.md"; fi
       - uses: softprops/action-gh-release@v2
         with:
@@ -33,4 +35,4 @@ jobs:
           name: ${{ steps.pack.outputs.tag }}
           body_path: notes.md
           files: sigma-fp-supmod-${{ steps.pack.outputs.tag }}.zip
-          make_latest: ${{ steps.pack.outputs.tag == 'R166' }}
+          make_latest: ${{ steps.pack.outputs.latest }}
