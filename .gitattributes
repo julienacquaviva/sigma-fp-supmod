@@ -1,0 +1,4 @@
+* text=auto
+*.BIN binary
+release/**/AutoRun.txt -text
+release/**/SHA256SUMS.txt text eol=lf

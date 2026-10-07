@@ -2,16 +2,22 @@
 
 **A RAM-only CinemaDNG mod for the Sigma fp.** Three files on the SD card, loaded at boot, gone when you take the card out.
 
-Nothing is flashed. Nothing is written to the camera. Pull the card and your fp is exactly the camera Sigma shipped. Put it back and the fp wakes up with open-gate modes, 14-bit raw, lossless compression, gyro data in every frame and a tidier Quick Set screen.
+[![release](https://img.shields.io/github/v/release/julienacquaviva/sigma-fp-supmod)](https://github.com/julienacquaviva/sigma-fp-supmod/releases/latest)
+[![downloads](https://img.shields.io/github/downloads/julienacquaviva/sigma-fp-supmod/total)](https://github.com/julienacquaviva/sigma-fp-supmod/releases)
+[![camera](https://img.shields.io/badge/Sigma%20fp-firmware%205.02-blue)](#-install)
+
+Nothing is flashed. Nothing is written to the camera. Pull the card and your fp is exactly the camera Sigma shipped. Put it back and CINE becomes a small raw configurator: pick a **ratio**, a **frame rate**, a **crop** and the **media** you record to, and the camera works out the largest lossless-compressed CinemaDNG frame that fits.
 
 | | |
 |---|---|
-| **Release** | R120 (build number 120; yes, there were 119 before it) |
+| **Release** | **R166** · [download the zip](../../releases/latest) |
 | **Camera** | Sigma fp, firmware **5.02**. Not the fp L. |
 | **Status** | Personal project. Built for and tested on one fp body, by its owner. It works on that one. |
 | **For whom** | People who shoot CinemaDNG on an fp, read changelogs for fun and own a spare battery. |
 
 > ⚠️ Unofficial. Not affiliated with, endorsed by or supported by SIGMA. No warranty of any kind. You use it at your own risk; see [the fine print](#the-fine-print).
+
+**Contents:** [Install](#-install) · [What you get](#-what-you-get) · [On screen](#️-on-screen) · [Every mode](#-every-mode) · [Known limits](#-known-limits-the-honest-list) · [How it was made](#-how-it-was-made) · [Older releases](#-older-releases)
 
 ---
 
@@ -19,7 +25,7 @@ Nothing is flashed. Nothing is written to the camera. Pull the card and your fp 
 
 This mod exists because other people did the hard part first.
 
-- **Bei (ijigen)** and the **[fpSup](https://github.com/ijigen/fpSup)** project: the open-gate research, the sensor-mode metadata, the gyro logger, the tools. Much of what this mod knows about the fp, it learned from there.
+- **Bei (ijigen)** and the **[fpSup](https://github.com/ijigen/fpSup)** project: the open-gate research, the sensor-mode metadata, the gyro logger, the menu discoveries, the tools. Much of what this mod knows about the fp, it learned from there.
 - **Vitaly** and his **FP3K** mod, which showed that a 3K open-gate fp was a real thing and not a daydream.
 - The **fpSup Discord community** (reachable through the fpSup project): testers, test reports, sample clips, patient answers.
 
@@ -29,123 +35,413 @@ Thank you. This project is a separate implementation and none of the people abov
 
 ## 📦 Install
 
-1. Download the three files from [`release/R120`](release/R120): `FPOG.BIN`, `AutoRun.txt`, `BOOT.BIN`. Check them against `SHA256SUMS.txt` if you like your bits verified.
-2. Copy them to the **root of the SD card**.
+1. Download **`sigma-fp-supmod-R166.zip`** from the [latest release](../../releases/latest) and unzip it. (The same three files are in [`release/R166`](release/R166); check them against `SHA256SUMS.txt` if you like your bits verified.)
+2. Copy `FPOG.BIN`, `AutoRun.txt` and `BOOT.BIN` to the **root of the SD card**.
 3. Put the card in, switch the camera on, switch to CINE.
-4. Wait a few seconds until the **purple mode name** (UHD, XQ, HQ, MQ, LQ or S16) appears in the top bar. That is the mod saying hello.
+4. Wait a few seconds until the **crop factor and the ratio** (for example `1.0x  3:2`) appear in the top bar, next to the clip name. That is the mod saying hello.
 
 **Uninstall:** delete the three files, or use another card.
-**If anything looks wrong:** switch off, pull the battery, boot without the card. The camera is stock again.
+**If anything looks wrong:** switch off, pull the battery for ten seconds, boot without the card. The camera is stock again.
 
 ---
 
-## 🎞️ Recording modes
+## ✨ What you get
 
-CINE records **CinemaDNG only** while the mod runs. Six modes, picked on the RES tile or in Record Settings.
-
-| Mode | 12bit | $\color{#a371f7}{\textsf{14bit}}$ | DC crop | Resolution | Ratio | Scaling | Max FPS | Crop vs full readout | Rolling shutter | Lossless compression (DATA-) at 23.976 | Uncompressed (DATA+) at 23.976 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| **UHD** | ✓ | $\color{#a371f7}{\checkmark}$ $\color{#a371f7}{\textsf{(DC}}$ $\color{#a371f7}{\textsf{only)}}$ | ✓ | 3840x2160 | 16:9 | ISP | 29.97, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{23.976}}$ | 1.0, DC 1.5 | 21.0 ms, DC 13.4 ms, $\color{#a371f7}{\textsf{DC}}$ $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{27.5}}$ $\color{#a371f7}{\textsf{ms}}$ | 220 MB/s | 303 MB/s, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{353}}$ $\color{#a371f7}{\textsf{MB/s}}$ |
-| **XQ** | ✓ | | ✓ | 3840x2560 | 3:2 | ISP | 29.97 | 1.0, DC 1.5 | 24.8 ms, DC 15.9 ms | 274 MB/s | 358 MB/s |
-| **HQ** | ✓ | | ✓ | 3240x2160 | 3:2 | ISP | 29.97 | 1.0, DC 1.5 | 24.8 ms, DC 15.9 ms | 172 MB/s | 257 MB/s |
-| **MQ** | ✓ | | | 3000x2000 | 3:2 | 2x2 | 50 | 1.0 | 12.4 ms | 134 MB/s | 221 MB/s |
-| **LQ** | ✓ | | | 2000x1334 | 3:2 | 3x3 | 119.88 | 1.0 | 8.3 ms | 52 MB/s | 99 MB/s |
-| **S16** | ✓ | $\color{#a371f7}{\checkmark}$ | | 2160x1440 | 3:2 | Full readout | 29.97, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{23.976}}$ | 2.8 | 9.0 ms, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{18.3}}$ $\color{#a371f7}{\textsf{ms}}$ | 61 MB/s | 115 MB/s, $\color{#a371f7}{\textsf{14bit}}$ $\color{#a371f7}{\textsf{134}}$ $\color{#a371f7}{\textsf{MB/s}}$ |
-
-Purple = 14-bit.
-
-A few footnotes for the curious:
-
-- Frame rates below the maximum: 23.976, 24, 25 and 29.97 everywhere; MQ adds 48 and 50; LQ adds 48, 50, 59.94, 100 and 119.88.
-- The rolling shutter is a hair longer at 25p in UHD and S16 (21.2 / 13.6 / 9.1 ms) and shorter at the top of LQ (7.4 ms at 100p, 6.2 ms at 119.88p).
-- The MB/s figures are what the DATA tile shows: an estimate from the frame size, the frame rate and how many frames the encoder can compress. Your scene decides the real number.
-
----
-
-## ✨ What the mod adds
-
-| Feature | What you get |
+| Feature | What it means |
 |---|---|
-| **Open-gate and crop modes** | XQ, HQ, MQ and LQ use the full 3:2 sensor; S16 is a 1:1 pixel window from the centre; UHD is still UHD. |
-| **14-bit raw** | A 12bit / 14bit choice. Available in **UHD with DC Crop** and in **S16**. It locks the frame rate to **23.976** and records uncompressed. |
-| **Lossless compression** | The camera's own hardware lossless-JPEG encoder, applied to 12-bit frames. **DATA-** = compression on, **DATA+** = off. A compressed frame is roughly half the size. |
-| **Gyro in every frame** | Each DNG carries its own slice of gyro samples (block "FPG2", about 2.5 kHz, three axes) in the unused tail of the MakerNote. No sidecar file, no length limit. The block also stores the readout time and the exposure time of the frame, so a reader can line samples up with the picture. |
-| **Per-mode frame-rate memory** | Each mode remembers its own frame rate. Go to LQ for 100p, come back to XQ, and XQ is still at 24. |
-| **No more sideways clips** | Movie DNGs no longer copy the orientation tag, so a tilted camera does not give you a clip that opens rotated. |
-| **Fast boot** | A tiny first-stage loader brings the mod up in about 6 seconds after power-on. |
-| **STILL mode stays native** | In STILL the mod steps aside: stock battery icon, stock menus, no mod polling. Switch back to CINE and everything is there again. |
+| **Three ratios** | **3:2** (open gate), **16:9** and **2:1**, each read from the full sensor width. |
+| **19 crops per ratio** | From **1.0x** to **2.8x** in steps of 0.1. The crop picks how much of the sensor is read; tighter crops unlock higher frame rates. |
+| **Nine frame rates** | 23.976, 24, 25, 29.97, 48, 50, 59.94, 100 and, in 2:1, 119.88. |
+| **Four media targets** | **SSD**, **v90**, **v60**, **v30**. Each is a data-rate budget (370 / 195 / 125 / 85 MB/s); the mod records the largest frame that stays under it. Same sensor area, same field of view, smaller file. |
+| **Oversampled or 1:1** | Wide crops are scaled down from more sensor pixels than they record; tight crops are recorded pixel for pixel. The screen tells you which. |
+| **Lossless compression, always** | The camera's own hardware lossless-JPEG encoder on 12-bit frames. No switch: every mode uses it. |
+| **Gyro in every frame** | Each DNG carries its own slice of gyro samples (block "FPG2", about 2.5 kHz, three axes) in the unused tail of the MakerNote, with the readout and exposure time of the frame. No sidecar file, no length limit. |
+| **Rolling shutter on screen** | The readout time of the current mode, in milliseconds, on its own tile. |
+| **No more sideways clips** | Movie DNGs no longer copy the orientation tag. |
+| **Fast boot** | The mod is up about 6 seconds after power-on. |
+| **STILL stays native** | In STILL the mod steps aside: stock menus, stock Quick Set, stock battery icon. |
 
-### How the compression behaves
+That is **1,552 recording states** (389 on SSD, and nearly as many for each card class), all listed in [Every mode](#-every-mode).
 
-The encoder is real hardware with a real speed limit, so compression is **per frame**: the camera compresses as many frames as the encoder can take and writes the rest uncompressed. Both kinds are ordinary DNG frames in the same clip.
+### How the choices work together
 
-| Mode | Frames per second the DATA tile assumes the encoder keeps up with |
-|---|---|
-| XQ | 12 |
-| UHD | 14 |
-| HQ | 17 |
-| MQ | 20 |
-| S16 | 35 |
-| LQ | 41 |
+The frame rate wins. Whatever you change, the mod keeps the rate you asked for and moves the rest:
 
-So S16 and LQ at 24p are fully compressed, while XQ at 24p is about half and half.
+- **Change the frame rate:** the crop goes to the widest one that can run it.
+- **Change the ratio:** same thing, the widest crop that runs the current rate. (119.88 exists only in 2:1; leaving 2:1 drops it to 100.)
+- **Change the crop:** only crops that run the current rate are offered.
+- **Change the media:** ratio and rate stay; the crop stays too unless that card class cannot run it.
+
+Nothing wraps around: at the end of a list the dial simply stops.
 
 ---
 
-## 🖥️ What changed on screen
+## 🖥️ On screen
 
-### Quick Set (QS) menu
+### Quick Set
 
-- **RES tile:** now picks the mode (UHD / XQ / HQ / MQ / LQ / S16), with the resolution shown underneath.
-- **FPS tile:** frame rate is remembered per mode; unavailable rates are greyed (14-bit locks it to 23.976).
-- **Format tile:** shows `cDNG`, `12bit` or `14bit`, and the rolling shutter in ms for the current mode.
-- **DATA tile:** replaces Headphone Volume. It shows the estimated MB/s and switches between DATA- (lossless compression) and DATA+ (uncompressed); in 14-bit it is DATA+ only.
-- **DC Crop tile:** greyed and locked Off in MQ, LQ and S16.
-- **Director's Viewfinder:** greyed in CINE (it would force MOV; it works as usual in STILL).
+Eight tiles, two rows:
 
-### Record Settings menu
+| SENSOR | RATIO | FPS | CROP |
+|---|---|---|---|
+| **OUTPUT** | **MEDIA** | **RS** | **IRIS** |
 
-- Resolution list shows the new mode names.
-- CinemaDNG only in CINE, in every mode including UHD (MOV is locked).
-- New Bit Depth row (12 / 14) and a Lossless Compression row.
-- Time left and clip limit account for compression.
+- **SENSOR** shows the sensor area being read, in blue. **OUTPUT** shows the recorded frame size in the colour of the media (green SSD, purple v90, orange v60, red v30), or in grey when it is recorded 1:1.
+- **RATIO**, **FPS**, **CROP** and **MEDIA** are the four things you set, with either dial.
+- **MEDIA** also shows the estimated data rate in MB/s. **RS** shows the rolling shutter in ms.
+- The picture stays visible behind the tiles under one even 50 % shade.
+
+### MENU › Record Settings
+
+The same six values on one page: **Sensor** and **Output** to read, **Media**, **Ratio**, **FPS** and **Crop** to set. Up / Down move the cursor; both dials and Left / Right change the value in place; MENU goes back. The page and Quick Set always show the same state.
 
 ### Live view
 
-- Top bar shows the mode name in purple (it also signals the mod is loaded), and battery as a percentage. CINE only: STILL keeps the stock battery icon.
-- STBY / REC text is hidden.
-- 3:2 modes get a 3:2 live view and a fitted HDMI display.
-- S16 shows the true 1:1 crop in standby, including during AF.
-
-### Custom Buttons Functions menu
-
-- DC Crop is now an assignable function in CINE mode. It replaces HDR in the list and is labelled "DC Crop", so any custom button (MODE, for example) can toggle it. In STILL the entry is HDR as always.
+- The top bar shows the **crop factor and the ratio** next to the clip name, and the battery as a percentage.
+- The live view is framed in the ratio you record.
 
 ### Custom QS editor
 
-- Adds a "DT / Data Rate" entry so the DATA tile can be placed in your own layout.
-- The editor's preview shows nothing under RES. and DT (the live values only exist on the real QS screen), and the function strip uses the stock icons for everything else.
+The tiles are listed under their new names (SENSOR, RATIO, FPS, CROP, OUTPUT, MEDIA, RS), so you can lay Quick Set out the way you like.
+
+---
+
+## 📋 Every mode
+
+Read a table like this: pick the row of your **crop**, the column of your **frame rate**; the cell is the frame that gets recorded. An empty cell means that crop cannot run that rate. **Bold** = recorded 1:1 (no scaling). The sensor area is what is read before scaling.
+
+The data rates behind these tables are planned for a detailed scene at high ISO, where a frame compresses to about 40 to 47 % of its raw size. Easier scenes come out well below the budget.
+
+### MEDIA = SSD (up to 370 MB/s)
+
+**3:2**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x4032 | 4488x2992 | 4080x2720 |  |  |  |  |  |
+| 1.1x | 5544x3696 | 4488x2992 | 4080x2720 |  |  |  |  |  |
+| 1.2x | 5040x3360 | 4488x2992 | 4080x2720 |  |  |  |  |  |
+| 1.3x | 4776x3184 | 4488x2992 | 4080x2720 | 3144x2096 | 3072x2048 ¹ |  |  |  |
+| 1.4x | 4284x2856 | **4284x2856** | 4080x2720 | 3144x2096 | 3072x2048 |  |  |  |
+| 1.5x | 4032x2688 | **4032x2688** | **4032x2688** | 3144x2096 | 3072x2048 |  |  |  |
+| 1.6x | 3780x2520 | **3780x2520** | **3780x2520** | 3144x2096 | 3072x2048 | 2784x1856 |  |  |
+| 1.7x | 3528x2352 | **3528x2352** | **3528x2352** | 3144x2096 | 3072x2048 | 2784x1856 |  |  |
+| 1.8x | 3360x2240 | **3360x2240** | **3360x2240** | 3144x2096 | 3072x2048 | 2784x1856 |  |  |
+| 1.9x | 3192x2128 | **3192x2128** | **3192x2128** | 3144x2096 | 3072x2048 | 2784x1856 |  |  |
+| 2.0x | 3024x2016 | **3024x2016** | **3024x2016** | **3024x2016** | **3024x2016** | 2784x1856 |  |  |
+| 2.1x | 2856x1904 | **2856x1904** | **2856x1904** | **2856x1904** | **2856x1904** | 2784x1856 |  |  |
+| 2.2x | 2772x1848 | **2772x1848** | **2772x1848** | **2772x1848** | **2772x1848** | **2772x1848** |  |  |
+| 2.3x | 2640x1760 | **2640x1760** | **2640x1760** | **2640x1760** | **2640x1760** | **2640x1760** |  |  |
+| 2.4x | 2520x1680 | **2520x1680** | **2520x1680** | **2520x1680** | **2520x1680** | **2520x1680** |  |  |
+| 2.5x | 2424x1616 | **2424x1616** | **2424x1616** | **2424x1616** | **2424x1616** | **2424x1616** |  |  |
+| 2.6x | 2328x1552 | **2328x1552** | **2328x1552** | **2328x1552** | **2328x1552** | **2328x1552** |  |  |
+| 2.7x | 2232x1488 | **2232x1488** | **2232x1488** | **2232x1488** | **2232x1488** | **2232x1488** |  |  |
+| 2.8x | 2160x1440 | **2160x1440** | **2160x1440** | **2160x1440** | **2160x1440** | **2160x1440** | 2112x1408 |  |
+
+**16:9**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x3402 | 4864x2736 | 4448x2502 |  |  |  |  |  |
+| 1.1x | 5664x3186 | 4864x2736 | 4448x2502 | 3424x1926 |  |  |  |  |
+| 1.2x | 5440x3060 | 4864x2736 | 4448x2502 | 3424x1926 | 3328x1872 |  |  |  |
+| 1.3x | 4788x2694 | **4788x2694** | 4448x2502 | 3424x1926 | 3328x1872 |  |  |  |
+| 1.4x | 4480x2520 | **4480x2520** | 4448x2502 | 3424x1926 | 3328x1872 | 3040x1710 |  |  |
+| 1.5x | 4284x2410 | **4284x2410** | **4284x2410** | 3424x1926 | 3328x1872 | 3040x1710 |  |  |
+| 1.6x | 3936x2214 | **3936x2214** | **3936x2214** | 3424x1926 | 3328x1872 | 3040x1710 |  |  |
+| 1.7x | 3744x2106 | **3744x2106** | **3744x2106** | 3424x1926 | 3328x1872 | 3040x1710 |  |  |
+| 1.8x | 3552x1998 | **3552x1998** | **3552x1998** | 3424x1926 | 3328x1872 | 3040x1710 |  |  |
+| 1.9x | 3360x1890 | **3360x1890** | **3360x1890** | **3360x1890** | 3328x1872 | 3040x1710 |  |  |
+| 2.0x | 3168x1782 | **3168x1782** | **3168x1782** | **3168x1782** | **3168x1782** | 3040x1710 |  |  |
+| 2.1x | 3008x1692 | **3008x1692** | **3008x1692** | **3008x1692** | **3008x1692** | **3008x1692** |  |  |
+| 2.2x | 2880x1620 | **2880x1620** | **2880x1620** | **2880x1620** | **2880x1620** | **2880x1620** |  |  |
+| 2.3x | 2752x1548 | **2752x1548** | **2752x1548** | **2752x1548** | **2752x1548** | **2752x1548** |  |  |
+| 2.4x | 2624x1476 | **2624x1476** | **2624x1476** | **2624x1476** | **2624x1476** | **2624x1476** |  |  |
+| 2.5x | 2528x1422 | **2528x1422** | **2528x1422** | **2528x1422** | **2528x1422** | **2528x1422** | 2304x1296 |  |
+| 2.6x | 2432x1368 | **2432x1368** | **2432x1368** | **2432x1368** | **2432x1368** | **2432x1368** | 2304x1296 |  |
+| 2.7x | 2336x1314 | **2336x1314** | **2336x1314** | **2336x1314** | **2336x1314** | **2336x1314** | 2304x1296 |  |
+| 2.8x | 2272x1278 | **2272x1278** | **2272x1278** | **2272x1278** | **2272x1278** | **2272x1278** | **2272x1278** |  |
+
+**2:1**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x3024 | 5184x2592 | 4720x2360 | 3632x1816 | 3552x1776 |  |  |  |
+| 1.1x | 5796x2898 | 5184x2592 | 4720x2360 | 3632x1816 | 3552x1776 |  |  |  |
+| 1.2x | 5544x2772 | 5184x2592 | 4720x2360 | 3632x1816 | 3552x1776 |  |  |  |
+| 1.3x | 5048x2524 | **5048x2524** | 4720x2360 | 3632x1816 | 3552x1776 | 3224x1612 |  |  |
+| 1.4x | 4536x2268 | **4536x2268** | **4536x2268** | 3632x1816 | 3552x1776 | 3224x1612 |  |  |
+| 1.5x | 4368x2184 | **4368x2184** | **4368x2184** | 3632x1816 | 3552x1776 | 3224x1612 |  |  |
+| 1.6x | 4032x2016 | **4032x2016** | **4032x2016** | 3632x1816 | 3552x1776 | 3224x1612 |  |  |
+| 1.7x | 3864x1932 | **3864x1932** | **3864x1932** | 3632x1816 | 3552x1776 | 3224x1612 |  |  |
+| 1.8x | 3576x1788 | **3576x1788** | **3576x1788** | **3576x1788** | 3552x1776 | 3224x1612 |  |  |
+| 1.9x | 3420x1710 | **3420x1710** | **3420x1710** | **3420x1710** | **3420x1710** | 3224x1612 |  |  |
+| 2.0x | 3252x1626 | **3252x1626** | **3252x1626** | **3252x1626** | **3252x1626** | 3224x1612 |  |  |
+| 2.1x | 3072x1536 | **3072x1536** | **3072x1536** | **3072x1536** | **3072x1536** | **3072x1536** |  |  |
+| 2.2x | 2952x1476 | **2952x1476** | **2952x1476** | **2952x1476** | **2952x1476** | **2952x1476** |  |  |
+| 2.3x | 2824x1412 | **2824x1412** | **2824x1412** | **2824x1412** | **2824x1412** | **2824x1412** | 2440x1220 |  |
+| 2.4x | 2712x1356 | **2712x1356** | **2712x1356** | **2712x1356** | **2712x1356** | **2712x1356** | 2440x1220 |  |
+| 2.5x | 2600x1300 | **2600x1300** | **2600x1300** | **2600x1300** | **2600x1300** | **2600x1300** | 2440x1220 |  |
+| 2.6x | 2504x1252 | **2504x1252** | **2504x1252** | **2504x1252** | **2504x1252** | **2504x1252** | 2440x1220 |  |
+| 2.7x | 2408x1204 | **2408x1204** | **2408x1204** | **2408x1204** | **2408x1204** | **2408x1204** | **2408x1204** |  |
+| 2.8x | 2320x1160 | **2320x1160** | **2320x1160** | **2320x1160** | **2320x1160** | **2320x1160** | **2320x1160** | 2208x1104 |
+
+<details>
+<summary><b>MEDIA = v90 (up to 195 MB/s)</b></summary>
+
+**3:2**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x4032 | 3576x2384 | 3216x2144 |  |  |  |  |  |
+| 1.1x | 5544x3696 | 3576x2384 | 3240x2160 |  |  |  |  |  |
+| 1.2x | 5040x3360 | 3576x2384 | 3240x2160 |  |  |  |  |  |
+| 1.3x | 4776x3184 | 3576x2384 | 3240x2160 | 2448x1632 | 2376x1584 ¹ |  |  |  |
+| 1.4x | 4284x2856 | 3576x2384 | 3240x2160 | 2448x1632 | 2376x1584 |  |  |  |
+| 1.5x | 4032x2688 | 3576x2384 | 3240x2160 | 2448x1632 | 2376x1584 |  |  |  |
+| 1.6x | 3780x2520 | 3576x2384 | 3240x2160 | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 1.7x | 3528x2352 | **3528x2352** | 3240x2160 | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 1.8x | 3360x2240 | **3360x2240** | 3240x2160 | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 1.9x | 3192x2128 | **3192x2128** | **3192x2128** | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 2.0x | 3024x2016 | **3024x2016** | **3024x2016** | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 2.1x | 2856x1904 | **2856x1904** | **2856x1904** | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 2.2x | 2772x1848 | **2772x1848** | **2772x1848** | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 2.3x | 2640x1760 | **2640x1760** | **2640x1760** | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 2.4x | 2520x1680 | **2520x1680** | **2520x1680** | 2448x1632 | 2376x1584 | 2160x1440 |  |  |
+| 2.5x | 2424x1616 | **2424x1616** | **2424x1616** | **2424x1616** | 2376x1584 | 2160x1440 |  |  |
+| 2.6x | 2328x1552 | **2328x1552** | **2328x1552** | **2328x1552** | **2328x1552** | 2160x1440 |  |  |
+| 2.7x | 2232x1488 | **2232x1488** | **2232x1488** | **2232x1488** | **2232x1488** | 2160x1440 |  |  |
+| 2.8x | 2160x1440 | **2160x1440** | **2160x1440** | **2160x1440** | **2160x1440** | **2160x1440** | 1584x1056 |  |
+
+**16:9**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x3402 | 3904x2196 | 3520x1980 |  |  |  |  |  |
+| 1.1x | 5664x3186 | 3904x2196 | 3520x1980 | 2656x1494 |  |  |  |  |
+| 1.2x | 5440x3060 | 3904x2196 | 3520x1980 | 2656x1494 | 2592x1458 |  |  |  |
+| 1.3x | 4788x2694 | 3904x2196 | 3520x1980 | 2656x1494 | 2592x1458 |  |  |  |
+| 1.4x | 4480x2520 | 3904x2196 | 3520x1980 | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 1.5x | 4284x2410 | 3904x2196 | 3520x1980 | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 1.6x | 3936x2214 | 3904x2196 | 3520x1980 | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 1.7x | 3744x2106 | **3744x2106** | 3520x1980 | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 1.8x | 3552x1998 | **3552x1998** | 3520x1980 | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 1.9x | 3360x1890 | **3360x1890** | **3360x1890** | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 2.0x | 3168x1782 | **3168x1782** | **3168x1782** | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 2.1x | 3008x1692 | **3008x1692** | **3008x1692** | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 2.2x | 2880x1620 | **2880x1620** | **2880x1620** | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 2.3x | 2752x1548 | **2752x1548** | **2752x1548** | 2656x1494 | 2592x1458 | 2336x1314 |  |  |
+| 2.4x | 2624x1476 | **2624x1476** | **2624x1476** | **2624x1476** | 2592x1458 | 2336x1314 |  |  |
+| 2.5x | 2528x1422 | **2528x1422** | **2528x1422** | **2528x1422** | **2528x1422** | 2336x1314 | 1728x972 |  |
+| 2.6x | 2432x1368 | **2432x1368** | **2432x1368** | **2432x1368** | **2432x1368** | 2336x1314 | 1728x972 |  |
+| 2.7x | 2336x1314 | **2336x1314** | **2336x1314** | **2336x1314** | **2336x1314** | **2336x1314** | 1728x972 |  |
+| 2.8x | 2272x1278 | **2272x1278** | **2272x1278** | **2272x1278** | **2272x1278** | **2272x1278** | 1728x972 |  |
+
+**2:1**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x3024 | 4144x2072 | 3752x1876 | 2832x1416 | 2768x1384 |  |  |  |
+| 1.1x | 5796x2898 | 4144x2072 | 3752x1876 | 2832x1416 | 2768x1384 |  |  |  |
+| 1.2x | 5544x2772 | 4144x2072 | 3752x1876 | 2832x1416 | 2768x1384 |  |  |  |
+| 1.3x | 5048x2524 | 4144x2072 | 3752x1876 | 2832x1416 | 2768x1384 |  |  |  |
+| 1.4x | 4536x2268 | 4144x2072 | 3752x1876 | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 1.5x | 4368x2184 | 4144x2072 | 3752x1876 | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 1.6x | 4032x2016 | **4032x2016** | 3752x1876 | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 1.7x | 3864x1932 | **3864x1932** | 3752x1876 | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 1.8x | 3576x1788 | **3576x1788** | **3576x1788** | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 1.9x | 3420x1710 | **3420x1710** | **3420x1710** | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 2.0x | 3252x1626 | **3252x1626** | **3252x1626** | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 2.1x | 3072x1536 | **3072x1536** | **3072x1536** | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 2.2x | 2952x1476 | **2952x1476** | **2952x1476** | 2832x1416 | 2768x1384 | 2496x1248 |  |  |
+| 2.3x | 2824x1412 | **2824x1412** | **2824x1412** | **2824x1412** | 2768x1384 | 2496x1248 | 1848x924 |  |
+| 2.4x | 2712x1356 | **2712x1356** | **2712x1356** | **2712x1356** | **2712x1356** | 2496x1248 | 1848x924 |  |
+| 2.5x | 2600x1300 | **2600x1300** | **2600x1300** | **2600x1300** | **2600x1300** | 2496x1248 | 1848x924 |  |
+| 2.6x | 2504x1252 | **2504x1252** | **2504x1252** | **2504x1252** | **2504x1252** | 2496x1248 | 1848x924 |  |
+| 2.7x | 2408x1204 | **2408x1204** | **2408x1204** | **2408x1204** | **2408x1204** | **2408x1204** | 1848x924 |  |
+| 2.8x | 2320x1160 | **2320x1160** | **2320x1160** | **2320x1160** | **2320x1160** | **2320x1160** | 1848x924 | 1656x828 |
+
+</details>
+
+<details>
+<summary><b>MEDIA = v60 (up to 125 MB/s)</b></summary>
+
+**3:2**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x4032 | 3120x2080 | 2832x1888 |  |  |  |  |  |
+| 1.1x | 5544x3696 | 3120x2080 | 2832x1888 |  |  |  |  |  |
+| 1.2x | 5040x3360 | 3120x2080 | 2832x1888 |  |  |  |  |  |
+| 1.3x | 4776x3184 | 3120x2080 | 2832x1888 | 2088x1392 | 2040x1360 ¹ |  |  |  |
+| 1.4x | 4284x2856 | 3120x2080 | 2832x1888 | 2088x1392 | 2040x1360 |  |  |  |
+| 1.5x | 4032x2688 | 3120x2080 | 2832x1888 | 2088x1392 | 2040x1360 |  |  |  |
+| 1.6x | 3780x2520 | 3120x2080 | 2832x1888 | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 1.7x | 3528x2352 | 3120x2080 | 2832x1888 | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 1.8x | 3360x2240 | 3120x2080 | 2832x1888 | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 1.9x | 3192x2128 | 3120x2080 | 2832x1888 | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.0x | 3024x2016 | **3024x2016** | 2832x1888 | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.1x | 2856x1904 | **2856x1904** | 2832x1888 | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.2x | 2772x1848 | **2772x1848** | **2772x1848** | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.3x | 2640x1760 | **2640x1760** | **2640x1760** | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.4x | 2520x1680 | **2520x1680** | **2520x1680** | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.5x | 2424x1616 | **2424x1616** | **2424x1616** | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.6x | 2328x1552 | **2328x1552** | **2328x1552** | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.7x | 2232x1488 | **2232x1488** | **2232x1488** | 2088x1392 | 2040x1360 | 1824x1216 |  |  |
+| 2.8x | 2160x1440 | **2160x1440** | **2160x1440** | 2088x1392 | 2040x1360 | 1824x1216 | 1320x880 |  |
+
+**16:9**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x3402 | 3392x1908 | 3072x1728 |  |  |  |  |  |
+| 1.1x | 5664x3186 | 3392x1908 | 3072x1728 | 2272x1278 |  |  |  |  |
+| 1.2x | 5440x3060 | 3392x1908 | 3072x1728 | 2272x1278 | 2208x1242 |  |  |  |
+| 1.3x | 4788x2694 | 3392x1908 | 3072x1728 | 2272x1278 | 2208x1242 |  |  |  |
+| 1.4x | 4480x2520 | 3392x1908 | 3072x1728 | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 1.5x | 4284x2410 | 3392x1908 | 3072x1728 | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 1.6x | 3936x2214 | 3392x1908 | 3072x1728 | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 1.7x | 3744x2106 | 3392x1908 | 3072x1728 | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 1.8x | 3552x1998 | 3392x1908 | 3072x1728 | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 1.9x | 3360x1890 | 3296x1854 | 3072x1728 | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 2.0x | 3168x1782 | **3168x1782** | 3072x1728 | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 2.1x | 3008x1692 | **3008x1692** | **3008x1692** | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 2.2x | 2880x1620 | **2880x1620** | **2880x1620** | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 2.3x | 2752x1548 | **2752x1548** | **2752x1548** | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 2.4x | 2624x1476 | **2624x1476** | **2624x1476** | 2272x1278 | 2208x1242 | 1984x1116 |  |  |
+| 2.5x | 2528x1422 | **2528x1422** | **2528x1422** | 2272x1278 | 2208x1242 | 1984x1116 | 1408x792 |  |
+| 2.6x | 2432x1368 | **2432x1368** | **2432x1368** | 2272x1278 | 2208x1242 | 1984x1116 | 1408x792 |  |
+| 2.7x | 2336x1314 | **2336x1314** | **2336x1314** | 2272x1278 | 2208x1242 | 1984x1116 | 1408x792 |  |
+| 2.8x | 2272x1278 | **2272x1278** | **2272x1278** | 2208x1242 | 2208x1242 | 1984x1116 | 1408x792 |  |
+
+**2:1**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x3024 | 3624x1812 | 3272x1636 | 2416x1208 | 2352x1176 |  |  |  |
+| 1.1x | 5796x2898 | 3624x1812 | 3272x1636 | 2416x1208 | 2352x1176 |  |  |  |
+| 1.2x | 5544x2772 | 3624x1812 | 3272x1636 | 2416x1208 | 2352x1176 |  |  |  |
+| 1.3x | 5048x2524 | 3624x1812 | 3272x1636 | 2416x1208 | 2352x1176 |  |  |  |
+| 1.4x | 4536x2268 | 3624x1812 | 3272x1636 | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 1.5x | 4368x2184 | 3624x1812 | 3272x1636 | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 1.6x | 4032x2016 | 3624x1812 | 3272x1636 | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 1.7x | 3864x1932 | 3624x1812 | 3272x1636 | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 1.8x | 3576x1788 | 3504x1752 | 3272x1636 | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 1.9x | 3420x1710 | **3420x1710** | 3272x1636 | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 2.0x | 3252x1626 | **3252x1626** | 3160x1580 | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 2.1x | 3072x1536 | **3072x1536** | **3072x1536** | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 2.2x | 2952x1476 | **2952x1476** | **2952x1476** | 2416x1208 | 2352x1176 | 2104x1052 |  |  |
+| 2.3x | 2824x1412 | **2824x1412** | **2824x1412** | 2416x1208 | 2352x1176 | 2104x1052 | 1520x760 |  |
+| 2.4x | 2712x1356 | **2712x1356** | **2712x1356** | 2416x1208 | 2352x1176 | 2104x1052 | 1520x760 |  |
+| 2.5x | 2600x1300 | **2600x1300** | **2600x1300** | 2416x1208 | 2352x1176 | 2104x1052 | 1520x760 |  |
+| 2.6x | 2504x1252 | **2504x1252** | **2504x1252** | 2416x1208 | 2352x1176 | 2104x1052 | 1520x760 |  |
+| 2.7x | 2408x1204 | **2408x1204** | **2408x1204** | 2360x1180 | 2352x1176 | 2104x1052 | 1520x760 |  |
+| 2.8x | 2320x1160 | **2320x1160** | **2320x1160** | **2320x1160** | **2320x1160** | 2104x1052 | 1520x760 | 1352x676 |
+
+</details>
+
+<details>
+<summary><b>MEDIA = v30 (up to 85 MB/s)</b></summary>
+
+**3:2**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x4032 | 2832x1888 | 2544x1696 ¹ |  |  |  |  |  |
+| 1.1x | 5544x3696 | 2832x1888 | 2544x1696 |  |  |  |  |  |
+| 1.2x | 5040x3360 | 2832x1888 | 2544x1696 |  |  |  |  |  |
+| 1.3x | 4776x3184 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 ¹ |  |  |  |
+| 1.4x | 4284x2856 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 |  |  |  |
+| 1.5x | 4032x2688 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 |  |  |  |
+| 1.6x | 3780x2520 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 1.7x | 3528x2352 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 1.8x | 3360x2240 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 1.9x | 3192x2128 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.0x | 3024x2016 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.1x | 2856x1904 | 2832x1888 | 2544x1696 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.2x | 2772x1848 | 2640x1760 | 2544x1696 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.3x | 2640x1760 | **2640x1760** | 2544x1696 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.4x | 2520x1680 | **2520x1680** | 2424x1616 | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.5x | 2424x1616 | **2424x1616** | **2424x1616** | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.6x | 2328x1552 | **2328x1552** | **2328x1552** | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.7x | 2232x1488 | **2232x1488** | **2232x1488** | 1824x1216 | 1776x1184 | 1584x1056 |  |  |
+| 2.8x | 2160x1440 | **2160x1440** | **2160x1440** | 1824x1216 | 1776x1184 | 1584x1056 | 1104x736 |  |
+
+**16:9**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x3402 | 3072x1728 | 2752x1548 |  |  |  |  |  |
+| 1.1x | 5664x3186 | 3072x1728 | 2752x1548 | 1984x1116 |  |  |  |  |
+| 1.2x | 5440x3060 | 3072x1728 | 2752x1548 | 1984x1116 |  |  |  |  |
+| 1.3x | 4788x2694 | 3072x1728 | 2752x1548 | 1984x1116 | 1920x1080 |  |  |  |
+| 1.4x | 4480x2520 | 3072x1728 | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 1.5x | 4284x2410 | 3072x1728 | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 1.6x | 3936x2214 | 3072x1728 | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 1.7x | 3744x2106 | 3072x1728 | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 1.8x | 3552x1998 | 3072x1728 | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 1.9x | 3360x1890 | 3072x1728 | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 2.0x | 3168x1782 | 3072x1728 | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 2.1x | 3008x1692 | 2880x1620 | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 2.2x | 2880x1620 | **2880x1620** | 2752x1548 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 2.3x | 2752x1548 | **2752x1548** | 2624x1476 | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 2.4x | 2624x1476 | **2624x1476** | **2624x1476** | 1984x1116 | 1920x1080 | 1728x972 |  |  |
+| 2.5x | 2528x1422 | **2528x1422** | **2528x1422** | 1984x1116 | 1920x1080 | 1728x972 | 1184x666 |  |
+| 2.6x | 2432x1368 | **2432x1368** | **2432x1368** | 1984x1116 | 1920x1080 | 1728x972 | 1184x666 |  |
+| 2.7x | 2336x1314 | **2336x1314** | **2336x1314** | 1984x1116 | 1920x1080 | 1728x972 | 1184x666 |  |
+| 2.8x | 2272x1278 | **2272x1278** | **2272x1278** | 1984x1116 | 1920x1080 | 1728x972 | 1184x666 |  |
+
+**2:1**
+
+| Crop | Sensor area | 23.976 / 24 / 25 | 29.97 | 48 | 50 | 59.94 | 100 | 119.88 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0x | 6048x3024 | 3280x1640 | 2944x1472 | 2112x1056 | 2064x1032 |  |  |  |
+| 1.1x | 5796x2898 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 |  |  |  |
+| 1.2x | 5544x2772 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 |  |  |  |
+| 1.3x | 5048x2524 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 |  |  |  |
+| 1.4x | 4536x2268 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 1.5x | 4368x2184 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 1.6x | 4032x2016 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 1.7x | 3864x1932 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 1.8x | 3576x1788 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 1.9x | 3420x1710 | 3280x1640 | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 2.0x | 3252x1626 | 3064x1532 | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 2.1x | 3072x1536 | **3072x1536** | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 2.2x | 2952x1476 | **2952x1476** | 2944x1472 | 2120x1060 | 2064x1032 | 1832x916 |  |  |
+| 2.3x | 2824x1412 | **2824x1412** | **2824x1412** | 2120x1060 | 2064x1032 | 1832x916 | 1288x644 |  |
+| 2.4x | 2712x1356 | **2712x1356** | **2712x1356** | 2120x1060 | 2064x1032 | 1832x916 | 1288x644 |  |
+| 2.5x | 2600x1300 | **2600x1300** | **2600x1300** | 2120x1060 | 2064x1032 | 1832x916 | 1288x644 |  |
+| 2.6x | 2504x1252 | **2504x1252** | **2504x1252** | 2120x1060 | 2064x1032 | 1832x916 | 1288x644 |  |
+| 2.7x | 2408x1204 | **2408x1204** | **2408x1204** | 2120x1060 | 2064x1032 | 1832x916 | 1288x644 |  |
+| 2.8x | 2320x1160 | **2320x1160** | **2320x1160** | 2120x1060 | 2064x1032 | 1832x916 | 1288x644 | 1128x564 |
+
+</details>
+
+¹ At this frame rate a slightly smaller sensor area is read: 4584x3056 for 3:2 1.3x at 50 fps, 6036x4024 for 3:2 1.0x at 29.97 fps on v30.
+
+The tables are generated from [`tools/modes_v45.json`](tools/modes_v45.json) by [`tools/make_readme.py`](tools/make_readme.py).
 
 ---
 
 ## 🧱 Known limits (the honest list)
 
-- **If the camera itself aborts a take** (write buffer full, card too slow) with compression on, the last frames that were still in the encoder can be lost, leaving gaps in the frame numbers near the end. A normal stop with the REC button is fine.
-- **MQ at 50p sits at the edge** of what an SSD takes. On the author's drive it ran about 43 seconds at roughly 339 MB/s before the camera stopped. Lower frame rates are comfortable.
-- **14-bit is 23.976 only**, uncompressed, and only in UHD with DC Crop and in S16.
-- **Wait for the purple name** after power-on before you start recording. Until then the camera is still stock.
-- **STILL is native in features, not in every byte.** The mod stays in memory, and the black-level clamp settings of a few sensor modes that stills share with the mod (12-bit stills at LOW size or with DC Crop, the fast AF live view) are the mod's values. No visible effect was reported; it is listed because you would want to know.
-- **Gyro axis signs:** pan and tilt are confirmed, the roll sign is not.
+- **The media setting is a plan, not a guarantee.** It sizes the frame for a data rate; your card or drive still has to hold that rate. A card class is a minimum write speed (v60 = 60 MB/s), so a busy scene on a slow card can still fill the buffer and stop the take. If it does, pick the next media step down.
+- **If the camera itself aborts a take** (write buffer full), the last frames that were still in the encoder can be lost. A normal stop with the REC button is fine.
+- **12-bit only.** Earlier releases had a 14-bit option; it is gone in favour of compression everywhere.
 - **MOV is not available in CINE** while the mod is loaded. That is a design choice, and also a limit.
-- Tested on one camera, one firmware (5.02), a handful of lenses and one SSD. Yours may find something new. 🙂
+- **Wait for the crop factor and ratio in the top bar** after power-on before you record. Until then the camera is still stock.
+- **STILL is native in features, not in every byte.** The mod stays in memory, and the black-level clamp settings of a few sensor modes that stills share with the mod are the mod's values. No visible effect was reported; it is listed because you would want to know.
+- **Gyro axis signs:** pan and tilt are confirmed, the roll sign is not.
+- Tested on one camera, one firmware (5.02), a handful of lenses, one SSD and a couple of SD cards. Yours may find something new. 🙂
 
 ---
 
 ## 🔧 How it was made
 
 - **Reverse engineering** of the stock firmware, one function at a time, mostly to find the place where the camera already does what you want and politely ask it to do it for another mode.
-- **Emulation-based verification.** Every build runs a chain of verifiers that execute the patched code in an emulator against fixtures of the camera's state: thousands of cases for the menus, the Quick Set logic, the recorder, the gyro block, the battery icon. A build goes on the card only when the whole chain passes.
-- **Small steps.** 120 builds, each changing one thing, each with a written change note and a camera test list. Several were built, tested and thrown away. That is what the numbers are for.
+- **A simulator first.** Every mode in the tables above was worked out in a simulator of the camera's limits (sensor rows, scaler steps, encoder speed, data rate) before it was built, and corrected whenever the camera disagreed.
+- **Emulation-based verification.** Every build runs a chain of checks that execute the patched code, and the camera's own menu engine, in an emulator: the dials, the tiles, the menu page, the recorder. Independent checkers have to pass before a build goes on the card.
+- **Small steps.** 166 builds, each changing one thing, each with a written change note and a camera test list. Several were built, tested and thrown away. That is what the numbers are for.
 - Development from build 46 onwards was done with an AI coding assistant (Claude) doing the analysis, code and verification under the owner's direction, and the owner doing what no emulator can: pointing a camera at things.
 
 ### Milestones
@@ -154,29 +450,33 @@ So S16 and LQ at 24p are fully compressed, while XQ at 24p is about half and hal
 |---|---|
 | R46 | Open-gate profiles on a common core; the black-level clamp fix for the open-gate sensor modes |
 | R52 | In-camera lossless compression with the hardware encoder |
-| R55 | Frame-rate ceilings per mode (MQ to 50, LQ to 119.88) |
-| R64 | "cDNG Lossless Compression" as a setting |
-| R71 | DATA tile with live MB/s |
 | R87 | Fast boot: about 6 seconds to a ready mod |
-| R88 | Mode names UHD / XQ / HQ / MQ / LQ and per-mode frame-rate memory |
-| R89 | Purple mode name in the live-view top bar |
-| R90 | DC Crop locked off in MQ and LQ |
-| R97 | 14-bit CinemaDNG with the right black level |
-| R99 | S16 mode, 14-bit as a user choice, CinemaDNG only |
-| R100 | Quick Set made consistent; readout time on the cDNG tile |
-| R104 | S16 as a 2160 x 1440 window; orientation tag dropped for movie DNGs |
 | R112 | Gyro data inside every DNG frame |
-| R113 | No frame lost when recording stops during compression |
-| R116 | Gyro sync from the exposure time of each frame |
-| R117 | Custom QS editor shows the right icons again |
-| R119 | Director's Viewfinder greyed in CINE |
-| **R120** | STILL mode native in features. **This release.** |
+| R120 | STILL mode native in features. First public release. |
+| R131 | Compression fast enough for 2:1 at 50 fps on an SSD |
+| R139 | Ratios instead of named modes; the CROP tile |
+| R159 | A dedicated 48 fps sensor mode; the widest sensor areas for 48, 50 and 59.94 |
+| R162 | The rate wins: ratio, rate and crop follow one rule set |
+| R163 | Media targets: SSD, v90, v60, v30 |
+| R164 | Record Settings as one page of six values |
+| R165 | Custom QS editor shows the new tiles |
+| **R166** | Top bar tidied. **This release.** |
+
+---
+
+## 🗂 Older releases
+
+| Release | What it was | Files |
+|---|---|---|
+| **R120** | Six named modes (UHD, XQ, HQ, MQ, LQ, S16), a 12 / 14-bit choice, compression as a switch | [`release/R120`](release/R120) · [zip](../../releases/tag/R120) |
+
+What changed between builds: [`docs/CHANGELOG.md`](docs/CHANGELOG.md).
 
 ---
 
 ## 🎨 Companion plugin
 
-A DaVinci Resolve OFX plugin that develops these DNGs and stabilises them from the in-frame gyro data exists and is in use. It is **not published yet**.
+**[sigma-fp-raw](https://github.com/julienacquaviva/sigma-fp-raw)**: a DaVinci Resolve OFX plugin that develops these DNGs and stabilises them from the in-frame gyro data.
 
 ---
 

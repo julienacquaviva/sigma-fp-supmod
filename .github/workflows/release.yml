@@ -1,0 +1,36 @@
+name: Release
+
+# Pushing a tag named like a build (R166) publishes release/<tag>/ as a zip.
+on:
+  push:
+    tags: ['R[0-9]*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Build to publish (a folder under release/, for example R166)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the files and make the zip
+        id: pack
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          cd "release/$TAG"
+          sha256sum -c SHA256SUMS.txt
+          zip -9 "$GITHUB_WORKSPACE/sigma-fp-supmod-$TAG.zip" FPOG.BIN AutoRun.txt BOOT.BIN SHA256SUMS.txt
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [ -f NOTES.md ]; then cp NOTES.md "$GITHUB_WORKSPACE/notes.md"; else echo "Build $TAG. See the README." > "$GITHUB_WORKSPACE/notes.md"; fi
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.pack.outputs.tag }}
+          name: ${{ steps.pack.outputs.tag }}
+          body_path: notes.md
+          files: sigma-fp-supmod-${{ steps.pack.outputs.tag }}.zip
+          make_latest: ${{ steps.pack.outputs.tag == 'R166' }}
